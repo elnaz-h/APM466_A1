@@ -1,0 +1,161 @@
+---
+title: "Assignment_1"
+author: "Elnaz Hessami Pilehrood"
+date: "13/02/2023"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+```{r}
+
+data <- read.csv("apm466_data.csv", header=T)
+
+# the price for each day
+jan_16 <- data[,8]
+jan_17 <- data[,9]
+jan_18 <- data[,10]
+jan_19 <- data[,11]
+jan_20 <- data[,12]
+jan_23 <- data[,13]
+jan_24 <- data[,14]
+jan_25 <- data[,15]
+jan_26 <- data[,16]
+jan_27 <- data[,17]
+
+coupon <- data[,3]
+
+# calculate the dirty price 
+
+#On January 1, 2023 it has been this number of days since the last coupon for each bond:
+days_last_coupon <- c(87, 0, 152, 88, 82, 161, 164, 77, 78, 151)
+
+# days since Jan 1 that the data was collected on 
+today <- c(16, 17, 18, 19, 20, 23, 24, 25, 26, 27)
+
+jan_16_dirty <- c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+jan_17_dirty <- c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+jan_18_dirty <- c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+jan_19_dirty <- c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+jan_20_dirty <- c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+jan_23_dirty <- c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+jan_24_dirty <- c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+jan_25_dirty <- c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+jan_26_dirty <- c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+jan_27_dirty <- c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+
+i = 1
+while(i<= 10)
+  {
+  jan_16_dirty[i] = ((days_last_coupon[i] + today[1])/365 ) * coupon[i] * 100 + jan_16[i]
+  jan_17_dirty[i] = ((days_last_coupon[i] + today[2])/365 ) * coupon[i] * 100 + jan_17[i]
+  jan_18_dirty[i] = ((days_last_coupon[i] + today[3])/365 ) * coupon[i] * 100 + jan_18[i]
+  jan_19_dirty[i] = ((days_last_coupon[i] + today[4])/365 ) * coupon[i] * 100 + jan_19[i]
+  jan_20_dirty[i] = ((days_last_coupon[i] + today[5])/365 ) * coupon[i] * 100 + jan_20[i]
+  jan_23_dirty[i] = ((days_last_coupon[i] + today[6])/365 ) * coupon[i] * 100 + jan_23[i]
+  jan_24_dirty[i] = ((days_last_coupon[i] + today[7])/365 ) * coupon[i] * 100 + jan_24[i]
+  jan_25_dirty[i] = ((days_last_coupon[i] + today[8])/365 ) * coupon[i] * 100 + jan_25[i]
+  jan_26_dirty[i] = ((days_last_coupon[i] + today[9])/365 ) * coupon[i] * 100 + jan_26[i]
+  jan_27_dirty[i] = ((days_last_coupon[i] + today[10])/365 ) * coupon[i] * 100 + jan_27[i]
+  i = i+1
+}
+
+  dirty_price <- cbind(jan_16_dirty, jan_17_dirty, jan_18_dirty, jan_19_dirty, jan_20_dirty, jan_23_dirty, jan_24_dirty, jan_25_dirty, jan_26_dirty, jan_27_dirty)
+  
+ #dirty_price<-matrix(,nrow=10,ncol=10)
+  
+# calculate yield to maturity 
+  
+yield <- matrix(, nrow=10, ncol=10)
+
+
+# Create bond valuation function
+bval <- function(i, cf,
+     t=seq(along = cf))
+     sum(cf / (1 + i)^t)
+
+# Create ytm() function using uniroot
+ytm <- function(cf) {
+    uniroot(bval, c(0, 1), cf = cf)$root
+}
+
+
+i = 1 
+while (i <= 10) {
+    # Create cash flow vectors for day i of data collection 
+  
+  # bond 1
+  cf1 <- c(-1 * dirty_price[1, i], 101.75)
+  # bond 2
+  cf2 <- c(-1 * dirty_price[2, i], 101.5)
+  # bond 3
+  cf3 <- c(-1 * dirty_price[3, i], 1.5, 1.5, 101.5)
+  # bond 4
+  cf4 <- c(-1 * dirty_price[4, i], 1.5, 1.5, 1.5, 101.5)
+  # bond 5
+  cf5 <- c(-1 * dirty_price[5, i], 1.25, 1.25, 1.25, 1.25, 101.25)
+  # bond 6
+  cf6 <- c(-1 * dirty_price[6, i], 1.5, 1.5, 1.5, 1.5, 101.5)
+  # bond 7
+  cf7 <- c(-1 * dirty_price[7, i], 1.5, 1.5, 1.5, 1.5, 1.5, 1,5, 101.5)
+  # bond 8
+  cf8 <- c(-1 * dirty_price[8, i], 1, 1, 1, 1, 1, 1, 1, 101)
+  # bond 9
+  cf9 <- c(-1 * dirty_price[9, i], 1.25, 1.25, 1.25, 1.25, 1.25, 1.25, 1.25, 1.25, 101.25)
+  # bond 10
+  cf10 <- c(-1 * dirty_price[10, i], 1, 1, 1, 1, 1, 1, 1, 1, 1, 101)
+  
+  # Use ytm() function to find yield
+yield[1,i] <- ytm(cf1)
+yield[2,i] <- ytm(cf2)
+yield[3,i] <- ytm(cf3)
+yield[4,i] <- ytm(cf4)
+yield[5,i] <- ytm(cf5)
+yield[6,i] <- ytm(cf6)
+yield[7,i] <- ytm(cf7)
+yield[8,i] <- ytm(cf8)
+yield[9,i] <- ytm(cf9)
+yield[10,i] <- ytm(cf10)
+
+i = i+1
+}
+
+# individual yield curve data 
+
+ytm_16 <- yield[,1]
+ytm_17 <- yield[,2]
+ytm_18 <- yield[,3]
+ytm_19 <- yield[,4]
+ytm_20 <- yield[,5]
+ytm_23 <- yield[,6]
+ytm_24 <- yield[,7]
+ytm_25 <- yield[,8]
+ytm_26 <- yield[,9]
+ytm_27 <- yield[,10]
+
+```
+
+```{r}
+
+
+plot (data[,6], ytm_16,xlab="Time to Maturity (Years)", ylab="Yield to Maturity" , main = "Yield Curve 2023/01/16 - 2023/01/27 ", type = "b", pch =20, lwd=2.0, col="red", bty='L')
+lines(data[,6],ytm_17, type = "b", pch =20, lwd=2.0, col="green")
+lines(data[,6],ytm_18, type = "b", pch =20, lwd=2.0, col="blue")
+lines(data[,6],ytm_19, type = "b", pch =20, lwd=2.0, col="brown")
+lines(data[,6],ytm_20, type = "b", pch =20, lwd=2.0, col="black")
+lines(data[,6],ytm_23, type = "b", pch =20, lwd=2.0, col="pink")
+lines(data[,6],ytm_24, type = "b", pch =20, lwd=2.0, col="aquamarine")
+lines(data[,6],ytm_25, type = "b", pch =20, lwd=2.0, col="chartreuse")
+lines(data[,6],ytm_26, type = "b", pch =20, lwd=2.0, col="coral")
+lines(data[,6],ytm_27, type = "b", pch =20, lwd=2.0, col="blueviolet")
+
+par(xpd=TRUE)
+legend("topright",inset = c(- 0.075, 0), legend=c("YTM1", "YTM2", "YTM3", "YTM4", "YTM5", "YTM6","YTM7", "YTM8", "YTM9", "YTM10"),
+       col=c("red","green", "blue", "brown", "black", "pink", "aquamarine", "chartreuse", "coral", "blueviolet"), lty=1:2, cex=0.65, box.lty=0)
+
+
+```
